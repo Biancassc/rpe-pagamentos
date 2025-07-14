@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# ... outras regras
+# Configurações de ambiente local
+*.properties.local
+application*.properties
+application*.yml
