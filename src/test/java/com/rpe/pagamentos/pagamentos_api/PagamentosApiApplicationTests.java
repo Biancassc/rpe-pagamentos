@@ -1,9 +1,11 @@
-package com.rpe.pagamento.pagamentos_api;
+package com.rpe.pagamentos.pagamentos_api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import com.rpe.pagamentos.PagamentosApiApplication;
+
+@SpringBootTest(classes = PagamentosApiApplication.class)
 class PagamentosApiApplicationTests {
 
 	@Test

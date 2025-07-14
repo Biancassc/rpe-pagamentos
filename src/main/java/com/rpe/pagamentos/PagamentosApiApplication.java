@@ -1,4 +1,4 @@
-package com.rpe.pagamento.pagamentos_api;
+package com.rpe.pagamentos;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
