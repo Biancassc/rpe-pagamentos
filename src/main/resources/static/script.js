@@ -2,6 +2,7 @@ console.log("Script JavaScript carregado!");
 
 const API_BASE_URL = 'http://localhost:8080';
 
+// Elementos HTML
 const clientListSection = document.getElementById('client-list');
 const clientsTableBody = document.querySelector('#clients-table tbody');
 const loadingClientsMsg = document.getElementById('loading-clients');
@@ -13,6 +14,9 @@ const invoicesTableBody = document.querySelector('#invoices-table tbody');
 const loadingInvoicesMsg = document.getElementById('loading-invoices');
 const noInvoicesMsg = document.getElementById('no-invoices');
 const backToClientsButton = document.getElementById('back-to-clients');
+
+const loadingOverlay = document.getElementById('loading-overlay');
+
 
 function formatCpf(cpf) {
     if (!cpf) return '';
@@ -32,7 +36,16 @@ function calculateAge(dobString) {
     return age;
 }
 
+function showLoading() {
+    loadingOverlay.classList.add('visible');
+}
+
+function hideLoading() {
+    loadingOverlay.classList.remove('visible');
+}
+
 async function fetchClients() {
+    showLoading(); 
     loadingClientsMsg.style.display = 'block';
     noClientsMsg.style.display = 'none';
     clientsTableBody.innerHTML = '';
@@ -68,10 +81,12 @@ async function fetchClients() {
         noClientsMsg.style.display = 'block';
     } finally {
         loadingClientsMsg.style.display = 'none';
+        hideLoading(); 
     }
 }
 
 async function showInvoices(clientId, clientName) {
+    showLoading(); 
     clientNameInvoiceSpan.textContent = clientName;
     clientListSection.style.display = 'none';
     invoiceDetailsSection.style.display = 'block';
@@ -128,11 +143,13 @@ async function showInvoices(clientId, clientName) {
         noInvoicesMsg.style.display = 'block';
     } finally {
         loadingInvoicesMsg.style.display = 'none';
+        hideLoading(); 
     }
 }
 
 async function registerPayment(invoiceId) {
     if (confirm(`Tem certeza que deseja registrar o pagamento da fatura ID: ${invoiceId}?`)) {
+        showLoading();
         try {
             const response = await fetch(`${API_BASE_URL}/faturas/${invoiceId}/pagamento`, {
                 method: 'PUT',
@@ -149,10 +166,12 @@ async function registerPayment(invoiceId) {
             alert(`Pagamento da fatura ${invoiceId} registrado com sucesso!`);
             const currentClientId = backToClientsButton.dataset.clientId;
             const currentClientName = clientNameInvoiceSpan.textContent;
-            showInvoices(currentClientId, currentClientName);
+            await showInvoices(currentClientId, currentClientName);
         } catch (error) {
             console.error('Erro ao registrar pagamento:', error);
             alert(`Falha ao registrar pagamento: ${error.message}`);
+        } finally {
+            hideLoading();
         }
     }
 }
@@ -160,7 +179,7 @@ async function registerPayment(invoiceId) {
 backToClientsButton.onclick = () => {
     invoiceDetailsSection.style.display = 'none';
     clientListSection.style.display = 'block';
-    fetchClients();
+    fetchClients(); 
 };
 
 document.addEventListener('DOMContentLoaded', fetchClients);
