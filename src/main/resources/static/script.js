@@ -2,7 +2,6 @@ console.log("Script JavaScript carregado!");
 
 const API_BASE_URL = 'http://localhost:8080';
 
-// Elementos HTML
 const clientListSection = document.getElementById('client-list');
 const clientsTableBody = document.querySelector('#clients-table tbody');
 const loadingClientsMsg = document.getElementById('loading-clients');
@@ -16,7 +15,31 @@ const noInvoicesMsg = document.getElementById('no-invoices');
 const backToClientsButton = document.getElementById('back-to-clients');
 
 const loadingOverlay = document.getElementById('loading-overlay');
+const addClientForm = document.getElementById('add-client-form');
+const clientNameInput = document.getElementById('client-name');
+const clientCpfInput = document.getElementById('client-cpf');
+const clientDobInput = document.getElementById('client-dob');
+const clientLimitInput = document.getElementById('client-limit');
+const formMessageDiv = document.getElementById('form-message');
 
+clientCpfInput.addEventListener('input', function (e) {
+    let value = e.target.value.replace(/\D/g, '');
+    let formattedValue = '';
+
+    if (value.length > 0) {
+        formattedValue += value.substring(0, 3);
+        if (value.length > 3) {
+            formattedValue += '.' + value.substring(3, 6);
+        }
+        if (value.length > 6) {
+            formattedValue += '.' + value.substring(6, 9);
+        }
+        if (value.length > 9) {
+            formattedValue += '-' + value.substring(9, 11);
+        }
+    }
+    e.target.value = formattedValue;
+});
 
 function formatCpf(cpf) {
     if (!cpf) return '';
@@ -44,8 +67,59 @@ function hideLoading() {
     loadingOverlay.classList.remove('visible');
 }
 
+function showFormMessage(message, isSuccess = true) {
+    formMessageDiv.textContent = message;
+    formMessageDiv.className = isSuccess ? 'success' : 'error';
+}
+
+function clearForm() {
+    addClientForm.reset();
+    formMessageDiv.textContent = '';
+    formMessageDiv.className = '';
+}
+
+async function addClient(event) {
+    event.preventDefault();
+
+    showLoading();
+    showFormMessage('');
+
+    const clientData = {
+        nome: clientNameInput.value,
+        cpf: formatCpf(clientCpfInput.value),
+        dataNascimento: clientDobInput.value,
+        limiteCredito: parseFloat(clientLimitInput.value)
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(clientData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Erro ao cadastrar! Status: ${response.status}`);
+        }
+
+        const newClient = await response.json();
+        console.log('Cliente cadastrado:', newClient);
+        showFormMessage('Cliente cadastrado com sucesso!', true);
+        clearForm();
+        await fetchClients();
+    } catch (error) {
+        console.error('Erro ao cadastrar cliente:', error);
+        showFormMessage(`Falha no cadastro: ${error.message}`, false);
+    } finally {
+        hideLoading();
+    }
+}
+
 async function fetchClients() {
-    showLoading(); 
+    showLoading();
     loadingClientsMsg.style.display = 'block';
     noClientsMsg.style.display = 'none';
     clientsTableBody.innerHTML = '';
@@ -81,12 +155,12 @@ async function fetchClients() {
         noClientsMsg.style.display = 'block';
     } finally {
         loadingClientsMsg.style.display = 'none';
-        hideLoading(); 
+        hideLoading();
     }
 }
 
 async function showInvoices(clientId, clientName) {
-    showLoading(); 
+    showLoading();
     clientNameInvoiceSpan.textContent = clientName;
     clientListSection.style.display = 'none';
     invoiceDetailsSection.style.display = 'block';
@@ -143,7 +217,7 @@ async function showInvoices(clientId, clientName) {
         noInvoicesMsg.style.display = 'block';
     } finally {
         loadingInvoicesMsg.style.display = 'none';
-        hideLoading(); 
+        hideLoading();
     }
 }
 
@@ -179,7 +253,9 @@ async function registerPayment(invoiceId) {
 backToClientsButton.onclick = () => {
     invoiceDetailsSection.style.display = 'none';
     clientListSection.style.display = 'block';
-    fetchClients(); 
+    fetchClients();
 };
 
 document.addEventListener('DOMContentLoaded', fetchClients);
+
+addClientForm.addEventListener('submit', addClient);

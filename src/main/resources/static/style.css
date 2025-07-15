@@ -163,3 +163,56 @@ button.disabled-button {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+#add-client-form {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; 
+    max-width: 800px; 
+    margin: 20px auto; 
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--background-white);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"] {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+#submit-client-button {
+    grid-column: span 2; 
+    margin-top: 10px;
+    background-color: var(--primary-color);
+}
+
+#submit-client-button:hover:not(:disabled) {
+    background-color: var(--button-hover-dark);
+}
+
+#form-message.success {
+    color: var(--success-color);
+}
+
+#form-message.error {
+    color: #dc3545; 
+}
