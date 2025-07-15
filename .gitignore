@@ -37,3 +37,6 @@ build/
 *.properties.local
 application*.properties
 application*.yml
+
+# Docker Compose environment variables
+.env

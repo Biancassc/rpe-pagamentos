@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: rpe-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: RPE_PAGAMENTOS
+      MYSQL_USER: rpeuser
+      MYSQL_PASSWORD: ${RPE_APP_MYSQL_PASSWORD}   
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app-backend:
+    build: .
+    container_name: rpe-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/RPE_PAGAMENTOS?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: rpeuser
+      SPRING_DATASOURCE_PASSWORD: ${RPE_APP_MYSQL_PASSWORD} 
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - mysql-db
+    networks:
+      - rpe_network
+
+volumes:
+  mysql_data:
+
+networks:
+  rpe_network:
+    driver: bridge
